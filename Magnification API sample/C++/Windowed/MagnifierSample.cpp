@@ -44,21 +44,23 @@
 
 #include <windows.h>
 #include <wincodec.h>
+#include <ShellScalingAPI.h>
 #include <magnification.h>
 
 // For simplicity, the sample uses a constant magnification factor.
-#define MAGFACTOR  2.0f
-#define RESTOREDWINDOWSTYLES WS_SIZEBOX | WS_SYSMENU | WS_CLIPCHILDREN | WS_CAPTION | WS_MAXIMIZEBOX
+#define RESTOREDWINDOWSTYLES WS_SIZEBOX | WS_SYSMENU | WS_CLIPCHILDREN | WS_CAPTION
 
 // Global variables and strings.
 HINSTANCE           hInst;
-const TCHAR         WindowClassName[]= TEXT("MagnifierWindow");
-const TCHAR         WindowTitle[]= TEXT("Screen Magnifier Sample");
+const TCHAR         WindowClassName[]= TEXT("MirrorWindow");
+const TCHAR         WindowTitle[]= TEXT("Screen Mirror");
 const UINT          timerInterval = 16; // close to the refresh rate @60hz
-HWND                hwndMag;
-HWND                hwndHost;
+HWND                hwndMag; // Handle of the area to be magnified
+HWND                hwndHost; // Handle of the area mirror
 RECT                magWindowRect;
 RECT                hostWindowRect;
+RECT				sourceRect;
+FLOAT				magfactor = 1;
 
 // Forward declarations.
 ATOM                RegisterHostWindowClass(HINSTANCE hInstance);
@@ -79,7 +81,53 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
                      _In_ LPSTR     /*lpCmdLine*/,
                      _In_ int       nCmdShow)
 {
-    if (FALSE == MagInitialize())
+	LPWSTR *szArglist;
+	int nArgs;
+
+	// Parse command line arguments if there are 8 
+	//  st sb sl sr wt wb wl wr
+	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	if ((NULL == szArglist) || (nArgs != 92))	{
+		// Set bounds of the area to be magnified
+		sourceRect.top = GetSystemMetrics(SM_CYSCREEN) * 3 / 4;
+		sourceRect.bottom = GetSystemMetrics(SM_CYSCREEN);  // bottom quarter of screen
+		sourceRect.left = 0;
+		sourceRect.right = GetSystemMetrics(SM_CXSCREEN);
+
+		// Set bounds of the window that hosts the magnified image
+		hostWindowRect.top = 0;
+		hostWindowRect.bottom = 0 - -2520;
+		hostWindowRect.left = 0;
+		hostWindowRect.right = 5691 - 1211;
+
+		/*
+		// Set bounds of the area to be magnified
+		sourceRect.top = GetSystemMetrics(SM_CYSCREEN) * 3 / 4;
+		sourceRect.bottom = GetSystemMetrics(SM_CYSCREEN);  // bottom quarter of screen
+		sourceRect.left = 0;
+		sourceRect.right = GetSystemMetrics(SM_CXSCREEN);
+
+		// Set bounds of the window that hosts the magnified image
+		hostWindowRect.top = 0;
+		hostWindowRect.bottom = GetSystemMetrics(SM_CYSCREEN) / 4;  // top quarter of screen
+		hostWindowRect.left = 0;
+		hostWindowRect.right = GetSystemMetrics(SM_CXSCREEN);
+		*/
+	} else {
+		// Set bounds of the area to be magnified
+		sourceRect.top		= _wtoi(szArglist[1]);
+		sourceRect.bottom	= _wtoi(szArglist[2]);
+		sourceRect.left		= _wtoi(szArglist[3]);
+		sourceRect.right	= _wtoi(szArglist[4]);
+
+		// Set bounds of the window that hosts the magnified image
+		hostWindowRect.top		= _wtoi(szArglist[5]);
+		hostWindowRect.bottom	= _wtoi(szArglist[6]);
+		hostWindowRect.left		= _wtoi(szArglist[7]);
+		hostWindowRect.right	= _wtoi(szArglist[8]);
+	}
+
+	if (FALSE == MagInitialize())
     {
         return 0;
     }
@@ -117,25 +165,8 @@ LRESULT CALLBACK HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 {
     switch (message) 
     {
-    case WM_KEYDOWN:
-        if (wParam == VK_ESCAPE)
-        {
-            if (isFullScreen) 
-            {
-                GoPartialScreen();
-            }
-        }
-        break;
-
     case WM_SYSCOMMAND:
-        if (GET_SC_WPARAM(wParam) == SC_MAXIMIZE)
-        {
-            GoFullScreen();
-        }
-        else
-        {
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
+		return DefWindowProc(hWnd, message, wParam, lParam);
         break;
 
     case WM_DESTROY:
@@ -149,6 +180,19 @@ LRESULT CALLBACK HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             // Resize the control to fill the window.
             SetWindowPos(hwndMag, NULL, 
                 magWindowRect.left, magWindowRect.top, magWindowRect.right, magWindowRect.bottom, 0);
+
+			// Pass the source rectangle to the magnifier control.
+			MagSetWindowSource(hwndMag, sourceRect);
+
+			// Set the magnification factor.
+			magfactor = float(magWindowRect.right - magWindowRect.left) / float(sourceRect.right - sourceRect.left);
+			MAGTRANSFORM matrix;
+			memset(&matrix, 0, sizeof(matrix));
+			matrix.v[0][0] = magfactor;
+			matrix.v[1][1] = magfactor;
+			matrix.v[2][2] = 1.0f;
+
+			MagSetWindowTransform(hwndMag, &matrix);
         }
         break;
 
@@ -185,12 +229,6 @@ ATOM RegisterHostWindowClass(HINSTANCE hInstance)
 //
 BOOL SetupMagnifier(HINSTANCE hinst)
 {
-    // Set bounds of host window according to screen size.
-    hostWindowRect.top = 0;
-    hostWindowRect.bottom = GetSystemMetrics(SM_CYSCREEN) / 4;  // top quarter of screen
-    hostWindowRect.left = 0;
-    hostWindowRect.right = GetSystemMetrics(SM_CXSCREEN);
-
     // Create the host window.
     RegisterHostWindowClass(hinst);
     hwndHost = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED, 
@@ -215,28 +253,17 @@ BOOL SetupMagnifier(HINSTANCE hinst)
         return FALSE;
     }
 
+	// Pass the source rectangle to the magnifier control.
+	BOOL ret = MagSetWindowSource(hwndMag, sourceRect);
+
     // Set the magnification factor.
     MAGTRANSFORM matrix;
     memset(&matrix, 0, sizeof(matrix));
-    matrix.v[0][0] = MAGFACTOR;
-    matrix.v[1][1] = MAGFACTOR;
+    matrix.v[0][0] = magfactor;
+    matrix.v[1][1] = magfactor;
     matrix.v[2][2] = 1.0f;
 
-    BOOL ret = MagSetWindowTransform(hwndMag, &matrix);
-
-    if (ret)
-    {
-        MAGCOLOREFFECT magEffectInvert = 
-        {{ // MagEffectInvert
-            { -1.0f,  0.0f,  0.0f,  0.0f,  0.0f },
-            {  0.0f, -1.0f,  0.0f,  0.0f,  0.0f },
-            {  0.0f,  0.0f, -1.0f,  0.0f,  0.0f },
-            {  0.0f,  0.0f,  0.0f,  1.0f,  0.0f },
-            {  1.0f,  1.0f,  1.0f,  0.0f,  1.0f } 
-        }};
-
-        ret = MagSetColorEffect(hwndMag,&magEffectInvert);
-    }
+    ret = ret | MagSetWindowTransform(hwndMag, &matrix);
 
     return ret;  
 }
@@ -245,99 +272,14 @@ BOOL SetupMagnifier(HINSTANCE hinst)
 //
 // FUNCTION: UpdateMagWindow()
 //
-// PURPOSE: Sets the source rectangle and updates the window. Called by a timer.
+// PURPOSE: Updates the window. Called by a timer.
 //
 void CALLBACK UpdateMagWindow(HWND /*hwnd*/, UINT /*uMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/)
 {
-    POINT mousePoint;
-    GetCursorPos(&mousePoint);
 
-    int width = (int)((magWindowRect.right - magWindowRect.left) / MAGFACTOR);
-    int height = (int)((magWindowRect.bottom - magWindowRect.top) / MAGFACTOR);
-    RECT sourceRect;
-    sourceRect.left = mousePoint.x - width / 2;
-    sourceRect.top = mousePoint.y -  height / 2;
-
-    // Don't scroll outside desktop area.
-    if (sourceRect.left < 0)
-    {
-        sourceRect.left = 0;
-    }
-    if (sourceRect.left > GetSystemMetrics(SM_CXSCREEN) - width)
-    {
-        sourceRect.left = GetSystemMetrics(SM_CXSCREEN) - width;
-    }
-    sourceRect.right = sourceRect.left + width;
-
-    if (sourceRect.top < 0)
-    {
-        sourceRect.top = 0;
-    }
-    if (sourceRect.top > GetSystemMetrics(SM_CYSCREEN) - height)
-    {
-        sourceRect.top = GetSystemMetrics(SM_CYSCREEN) - height;
-    }
-    sourceRect.bottom = sourceRect.top + height;
-
-    // Set the source rectangle for the magnifier control.
-    MagSetWindowSource(hwndMag, sourceRect);
-
-    // Reclaim topmost status, to prevent unmagnified menus from remaining in view. 
-    SetWindowPos(hwndHost, HWND_TOPMOST, 0, 0, 0, 0, 
-        SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
+	// Pass the source rectangle to the magnifier control.
+	MagSetWindowSource(hwndMag, sourceRect);
 
     // Force redraw.
     InvalidateRect(hwndMag, NULL, TRUE);
-}
-
-
-//
-// FUNCTION: GoFullScreen()
-//
-// PURPOSE: Makes the host window full-screen by placing non-client elements outside the display.
-//
-void GoFullScreen()
-{
-    isFullScreen = TRUE;
-    // The window must be styled as layered for proper rendering. 
-    // It is styled as transparent so that it does not capture mouse clicks.
-    SetWindowLong(hwndHost, GWL_EXSTYLE, WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-    // Give the window a system menu so it can be closed on the taskbar.
-    SetWindowLong(hwndHost, GWL_STYLE,  WS_CAPTION | WS_SYSMENU);
-
-    // Calculate the span of the display area.
-    HDC hDC = GetDC(NULL);
-    int xSpan = GetSystemMetrics(SM_CXSCREEN);
-    int ySpan = GetSystemMetrics(SM_CYSCREEN);
-    ReleaseDC(NULL, hDC);
-
-    // Calculate the size of system elements.
-    int xBorder = GetSystemMetrics(SM_CXFRAME);
-    int yCaption = GetSystemMetrics(SM_CYCAPTION);
-    int yBorder = GetSystemMetrics(SM_CYFRAME);
-
-    // Calculate the window origin and span for full-screen mode.
-    int xOrigin = -xBorder;
-    int yOrigin = -yBorder - yCaption;
-    xSpan += 2 * xBorder;
-    ySpan += 2 * yBorder + yCaption;
-
-    SetWindowPos(hwndHost, HWND_TOPMOST, xOrigin, yOrigin, xSpan, ySpan, 
-        SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOACTIVATE);
-}
-
-//
-// FUNCTION: GoPartialScreen()
-//
-// PURPOSE: Makes the host window resizable and focusable.
-//
-void GoPartialScreen()
-{
-    isFullScreen = FALSE;
-
-    SetWindowLong(hwndHost, GWL_EXSTYLE, WS_EX_TOPMOST | WS_EX_LAYERED);
-    SetWindowLong(hwndHost, GWL_STYLE, RESTOREDWINDOWSTYLES);
-    SetWindowPos(hwndHost, HWND_TOPMOST, 
-        hostWindowRect.left, hostWindowRect.top, hostWindowRect.right, hostWindowRect.bottom, 
-        SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOACTIVATE);
 }
