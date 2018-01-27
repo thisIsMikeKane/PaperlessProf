@@ -1,0 +1,11 @@
+{
+  "name":				"Display",
+  "width":				200,
+  "height":				80,
+  "protocol":			"app",
+  "protocol_call":		"app_call",
+  "html_url":			"assets/index.html",
+  "NavComplete_call":	"app_page",
+  "Nav_sounds":			false,
+  "fullscreen":			false
+}
