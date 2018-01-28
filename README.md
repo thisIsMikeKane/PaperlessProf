@@ -8,8 +8,8 @@ The program splits the screen on your tablet (in portrait mode) into two areas, 
 ![Schematic](assets/schematic.png)
 
 ## Usage
-(**Download the latest version of `PaperlessProf.exe`**)[dist/PaperlessProf.exe]. The executable is portable and will run from any directory. (For example place in your `My Documents` folder.)
-Ensure that you have (VLC Player)[https://www.videolan.org/vlc/index.html] installed.
+[**Download the latest version of `PaperlessProf.exe`**](dist/PaperlessProf.exe). The executable is portable and will run from any directory. (For example place in your `My Documents` folder.)
+Ensure that you have [VLC Player](https://www.videolan.org/vlc/index.html) installed.
 
 1. Set your tablet to portrait mode
 2. Connect your tablet to the classroom project, and set to extended desktop. 
@@ -33,12 +33,12 @@ Note: Running `PaperlessProf.exe` will create a folder named `assets` in its cur
 ### Using with PowerPoint
 PowerPoint is best for presenting powerful images and graphics, while OneNote is best for presenting hand calculations to engineering problems. `PaperlessProf.exe` allows you to leverage these two software to their full potential. 
 1. Run `PaperlessProf.exe` to create the virtual whiteboard and private notes area
-2. Run PowerPoint, and present using (presenter view)[https://support.office.com/en-us/article/what-is-presenter-view-98f31265-9630-41a7-a3f1-9b4736928ee3]
+2. Run PowerPoint, and present using [presenter view](https://support.office.com/en-us/article/what-is-presenter-view-98f31265-9630-41a7-a3f1-9b4736928ee3)
 3. Use the windows taskbar to switch between the PowerPoint or VLC (the mirror window) displayed to the class on the projector
 
 ## Toubleshooting
- * Ensure that the desktop is (extended to the projector)[https://support.microsoft.com/en-us/help/27911/windows-10-connect-to-a-projector-or-pc]
- * Ensure that the tablet is primary monitor ((How to set the primary monitor)[https://www.windowschimp.com/how-to-set-a-display-as-the-main-display/]
+ * Ensure that the desktop is [extended to the projector](https://support.microsoft.com/en-us/help/27911/windows-10-connect-to-a-projector-or-pc)
+ * Ensure that the tablet is primary monitor ( [How to set the primary monitor](https://www.windowschimp.com/how-to-set-a-display-as-the-main-display/) )
  
 ### Known issues
 * Screen capture in VLC can be quite laggy. Expect a refresh rate of 0.5Hz to 2Hz.
@@ -47,10 +47,10 @@ PowerPoint is best for presenting powerful images and graphics, while OneNote is
 ## Requirements
 
 ### Usage
- * (VLC Player)[https://www.videolan.org/vlc/index.html]
+ * [VLC Player](https://www.videolan.org/vlc/index.html)
  
 ### Development
- * (AutoHotkey)[https://autohotkey.com/]
+ * [AutoHotkey](https://autohotkey.com/)
  
 #### Optional requirements
- * (DrawboardPDF)[https://www.microsoft.com/en-us/store/p/drawboard-pdf/9wzdncrfhwqt?SilentAuth=1&wa=wsignin1.0]
+ * [DrawboardPDF](https://www.microsoft.com/en-us/store/p/drawboard-pdf/9wzdncrfhwqt?SilentAuth=1&wa=wsignin1.0)
