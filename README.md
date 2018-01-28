@@ -14,16 +14,18 @@ Ensure that you have (VLC Player)[https://www.videolan.org/vlc/index.html] insta
 1. Set your tablet to portrait mode
 2. Connect your tablet to the classroom project, and set to extended desktop. 
 3. Run `PaperlessProf.exe`. This will automatically do the following:
-	a. Move the windows taskbar on the tablet from the bottom to the top of the screen. This prevents you from accidentally switching between windows when you're writing. 
-	b. Automatically move all the open windows into the *private area*
-	c. Create a new OneNote page and place it in the *public area*
-	d. Create a new Chrome window and place it in the *public area*
-	e. Move the Drawboard window into the *public area*
-	f. Create a GUI window in the bottom left of the *private area*
+    - Move the windows taskbar on the tablet from the bottom to the top of the screen. This prevents you from accidentally switching between windows when you're writing. 
+    - Automatically move all the open windows into the *private area*
+    - Create a new OneNote page and place it in the *public area*
+    - Create a new Chrome window and place it in the *public area*
+    - Move the Drawboard window into the *public area*
+    - Create a GUI window in the bottom left of the *private area*
 4. Use the GUI to move switch a window from one area to another.
-	a. Click the left button, then the window which you want to move from the *private area* to the *public area*
-	b. Click the right button, then the window which you want to move from the *public area* to the *private area*
+    - Click the left button, then the window which you want to move from the *private area* to the *public area*
+    - Click the right button, then the window which you want to move from the *public area* to the *private area*
+ 
 	![GUI](assets/GUI.png)
+	
 5. Close the GUI (by click the `X` in the upper right) to close the VLC mirror and return the taskbar to the bottom
 		
 Note: Running `PaperlessProf.exe` will create a folder named `assets` in its current directory. If you delete this folder or its contents, it will be recreated the next time you run `PaperlessProf.exe`
@@ -39,8 +41,8 @@ PowerPoint is best for presenting powerful images and graphics, while OneNote is
  * Ensure that the tablet is primary monitor ((How to set the primary monitor)[https://www.windowschimp.com/how-to-set-a-display-as-the-main-display/]
  
 ### Known issues
- * Screen capture in VLC can be quite laggy. Expect a refresh rate of 0.5Hz to 2Hz.
-	- This is the biggest issue when you need to display a video to the class. In which case, embed the video in a PowerPoint presentation and use presenter view. Click on the taskbar to switch between the PowerPoint window being on top, or the VLC window on top on the projector display. 
+* Screen capture in VLC can be quite laggy. Expect a refresh rate of 0.5Hz to 2Hz.
+  - This is the biggest issue when you need to display a video to the class. In which case, embed the video in a PowerPoint presentation and use presenter view. Click on the taskbar to switch between the PowerPoint window being on top, or the VLC window on top on the projector display. 
 
 ## Requirements
 
