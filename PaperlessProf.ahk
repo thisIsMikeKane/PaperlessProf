@@ -1,12 +1,10 @@
 #NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
 #SingleInstance force
 
-#Include MDMF.ahk
-#Include TaskbarMove.ahk
-#Include NewChromeWin.ahk
-#Include Lib\Webapp.ahk
-
-
+#Include lib\MDMF.ahk
+#Include lib\TaskbarMove.ahk
+#Include lib\NewChromeWin.ahk
+#Include lib\Webapp.ahk
 
 __Webapp_AppStart:
 

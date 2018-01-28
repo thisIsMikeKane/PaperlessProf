@@ -1,0 +1,6 @@
+# Directory for compiled files for testing
+/debug
+
+# Directory of distribution binaries
+#  Keep the binaries, but not any other files
+/dist/assets
