@@ -105,29 +105,6 @@ Loop %Window% {
 		WinMove, % "ahk_id " Id,, PvtSpaceLeftbdrThkX, , PvtSpaceWidth+2*bdrThkX, PvtSpaceHeight 
 	}
 }
-
-; Open public windows to display to the class
-; -------------------------------------------
-; * OneNote
-Run OneNote.exe,,, pubOneNoteID
-WinWait, OneNote ahk_pid %pubOneNoteID%,, 5
-if ErrorLevel {
-	MsgBox, OneNote failed to load quickly enough and was not moved
-}
-Sleep 300 ; Wait a little longer for good measure
-WinRestore, ahk_pid %pubOneNoteID% ; Restore in case it was created maximized
-WinMove, ahk_pid %pubOneNoteID%,, %PubSpaceLeft%, %PubSpaceTop%
-WinMove, ahk_pid %pubOneNoteID%,, , , %PubSpaceWidth%, %PubSpaceHeight%
-
-; * Chrome
-;			Chrome behaves weird, so use NewChromeWin() to handle creation
-; TODO this still doesn't always work right
-pubChromeID := NewChromeWin(PubSpaceLeft - bdrThkX, PubSpaceTop, PubSpaceWidth + 2*bdrThkX, PubSpaceHeight)
-
-; * DrawBoardPDF
-WinMove, Drawboard PDF,, %PubSpaceLeft%, %PubSpaceTop%,
-WinMove, Drawboard PDF,, , , %PubSpaceWidth%, %PubSpaceHeight%
-;TODO figure out how to open drawboard
  
 ; Create the mirror on the public screen
 ; --------------------------------------
