@@ -4,3 +4,6 @@
 # Directory of distribution binaries
 #  Keep the binaries, but not any other files
 /dist/assets
+
+# Test folder
+/test
